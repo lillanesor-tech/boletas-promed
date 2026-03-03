@@ -487,17 +487,45 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ============================================================
-//  CONFIGURACIÓN — Solo edita esta sección cada mes
+//  CONFIGURACIÓN — Edita esta sección cada mes
 // ============================================================
 const CONFIG = {
-  // Lista de PDFs disponibles. Agrega uno por mes.
-  // El archivo debe estar en la carpeta "pdfs/" del repositorio.
-  // Formato: { mes: "Nombre", anio: 2025, archivo: "nombre.pdf" }
-  pdfs: [
-  { mes: "Diciembre", anio: 2025, archivo: "pdfs/BOLETAS_DE_PAGO_DICIEMBRE.pdf" }  
-    // Ejemplo para el mes siguiente:
-    // { mes: "Enero",    anio: 2026, archivo: "pdfs/BOLETAS_ENERO_2026.pdf" }
-  ]
+
+  // Archivo PDF del mes en la carpeta pdfs/
+  archivo: "pdfs/BOLETAS_DE_PAGO_DICIEMBRE.pdf",
+  mes: "Diciembre",
+  anio: 2025,
+
+  // MAPA DE PERSONAL: "CI" -> { nombre, pagina }
+  // pagina = número de página en el PDF donde aparece la boleta (empieza en 1)
+  personal: {
+    "4770143":  { nombre: "Lucia Antonio Canizares",            pagina: 1  },
+    "8144443":  { nombre: "Daniela Patricia Calla Barba",       pagina: 2  },
+    "12759823": { nombre: "Mary Lourdes Guzman Prada",          pagina: 3  },
+    "5849173":  { nombre: "Jose Abel Herrera Martinez",         pagina: 4  },
+    "4014683":  { nombre: "Carlos Roberto Huanca Alfaro",       pagina: 5  },
+    "6561155":  { nombre: "Anibal Abad Iporre Llano",           pagina: 6  },
+    "8936758":  { nombre: "Joel Jesus Justiniano Arredondo",    pagina: 7  },
+    "7293692":  { nombre: "Cecilia Celia Lozano Baltazar",      pagina: 8  },
+    "5417743":  { nombre: "Gianny Sossa Mansilla",              pagina: 9  },
+    "12667418": { nombre: "Camila Alejandra Suarez Rivero",     pagina: 10 },
+    "5772356":  { nombre: "Rody Raul Yucra Sanchez",            pagina: 11 },
+    "3114027":  { nombre: "Magda Noemi Martinez Siles",         pagina: 12 },
+    "7091177":  { nombre: "Marco Antonio Laura Laura",          pagina: 13 },
+    "8377994":  { nombre: "Tania Nina Chavez",                  pagina: 14 },
+    "9125077":  { nombre: "Deysi Mabel Flores Piza",            pagina: 15 },
+    "8327619":  { nombre: "Maria Isabel Choque Ticona",         pagina: 16 },
+    "9866860":  { nombre: "Melvi Mishel Churata Huanaco",       pagina: 17 },
+    "10679399": { nombre: "Efrain Ortuño Vela",                 pagina: 18 },
+    "7189426":  { nombre: "Juan Pablo Aparicio Yucra",          pagina: 19 },
+    "8505659":  { nombre: "Maribel Ramirez Oyola",              pagina: 20 },
+    "7918753":  { nombre: "Claudia Dominguez Castellon",        pagina: 21 },
+    "13000333": { nombre: "Jhoselin Gabriela Munguia Cespedes", pagina: 22 },
+    "6507483":  { nombre: "Paola Andrea Quisbert Teran",        pagina: 23 },
+    "8673764":  { nombre: "Nieves Arellano Hurtado",            pagina: 24 },
+    "7920488":  { nombre: "Dilmer Gustavo Cabezas Teran",       pagina: 25 },
+  }
+
 };
 // ============================================================
 
@@ -543,102 +571,71 @@ async function buscar() {
   resultCard.style.display = 'none';
   btn.disabled = true;
   setProgress(5);
-  setStatus('loading', 'Cargando archivo de boletas...');
+
+  // Buscar CI en el mapa de personal
+  const empleado = CONFIG.personal[ci];
+
+  if (!empleado) {
+    setProgress(null);
+    setStatus('error', `No se encontró ninguna boleta con CI: ${ci}. Verifica el número ingresado.`);
+    btn.disabled = false;
+    return;
+  }
+
+  setStatus('loading', `Cargando boleta de ${empleado.nombre}...`);
+  setProgress(20);
 
   try {
-    // Buscar en todos los PDFs configurados (más reciente primero)
-    const pdfs = [...CONFIG.pdfs].reverse();
-    let encontrado = false;
+    // Cargar el PDF
+    const pdfDoc = await pdfjsLib.getDocument(CONFIG.archivo).promise;
+    setProgress(50);
 
-    for (const pdfConfig of pdfs) {
-      setStatus('loading', `Buscando en boletas de ${pdfConfig.mes} ${pdfConfig.anio}...`);
-      setProgress(20);
+    // Ir directo a la página del empleado
+    const page = await pdfDoc.getPage(empleado.pagina);
+    setStatus('loading', 'Generando imagen...');
+    setProgress(70);
 
-      let pdfDoc;
-      try {
-        pdfDoc = await pdfjsLib.getDocument(pdfConfig.archivo).promise;
-      } catch (e) {
-        console.warn(`No se pudo cargar ${pdfConfig.archivo}:`, e);
-        continue;
-      }
+    // Renderizar a canvas en alta resolución
+    const canvas = document.getElementById('render-canvas');
+    const viewport = page.getViewport({ scale: 2.0 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
 
-      setProgress(40);
-      const numPages = pdfDoc.numPages;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    setProgress(90);
 
-      // Buscar el CI en cada página
-      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-        const page = await pdfDoc.getPage(pageNum);
-        const textContent = await page.getTextContent();
-        const text = textContent.items.map(i => i.str).join(' ');
+    // Cada página tiene 2 boletas idénticas — recortamos solo la mitad superior
+    const halfCanvas = document.createElement('canvas');
+    halfCanvas.width = canvas.width;
+    halfCanvas.height = Math.floor(canvas.height / 2);
+    const halfCtx = halfCanvas.getContext('2d');
+    halfCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height / 2,
+                               0, 0, canvas.width, canvas.height / 2);
 
-        // Verificar si esta página contiene el CI buscado
-        // Patrones: "C.I. 4770143", "C.I.4770143", "CI 4770143"
-        const patterns = [
-          new RegExp(`C\\.I\\.?\\s*${ci}\\b`),
-          new RegExp(`\\b${ci}\\b`)
-        ];
+    const imgData = halfCanvas.toDataURL('image/png');
 
-        const found = patterns.some(p => p.test(text));
+    // Mostrar resultado
+    document.getElementById('boleta-img').src = imgData;
+    document.getElementById('res-name').textContent = empleado.nombre;
+    document.getElementById('res-meta').textContent =
+      `CI: ${ci} · ${CONFIG.mes} ${CONFIG.anio}`;
 
-        if (found) {
-          setStatus('loading', 'Generando imagen de tu boleta...');
-          setProgress(70);
+    const dlBtn = document.getElementById('btn-dl');
+    dlBtn.href = imgData;
+    dlBtn.download = `Boleta_${empleado.nombre.replace(/ /g,'_')}_${CONFIG.mes}_${CONFIG.anio}.png`;
 
-          // Renderizar la página a canvas
-          const canvas = document.getElementById('render-canvas');
-          const viewport = page.getViewport({ scale: 2.0 }); // alta resolución
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+    setProgress(100);
+    setTimeout(() => setProgress(null), 600);
+    hideStatus();
 
-          const ctx = canvas.getContext('2d');
-          await page.render({ canvasContext: ctx, viewport }).promise;
-
-          setProgress(90);
-
-          // Cada página tiene 2 boletas idénticas — recortamos la mitad superior
-          const halfCanvas = document.createElement('canvas');
-          halfCanvas.width = canvas.width;
-          halfCanvas.height = Math.floor(canvas.height / 2);
-          const halfCtx = halfCanvas.getContext('2d');
-          halfCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height / 2,
-                                   0, 0, canvas.width, canvas.height / 2);
-
-          const imgData = halfCanvas.toDataURL('image/png');
-
-          // Mostrar resultado
-          document.getElementById('boleta-img').src = imgData;
-          document.getElementById('res-name').textContent = 'Boleta encontrada';
-          document.getElementById('res-meta').textContent =
-            `CI: ${ci} · ${pdfConfig.mes} ${pdfConfig.anio} · Página ${pageNum}`;
-
-          const dlBtn = document.getElementById('btn-dl');
-          dlBtn.href = imgData;
-          dlBtn.download = `Boleta_CI_${ci}_${pdfConfig.mes}_${pdfConfig.anio}.png`;
-
-          setProgress(100);
-          setTimeout(() => setProgress(null), 600);
-          hideStatus();
-
-          resultCard.style.display = 'block';
-          resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-          encontrado = true;
-          break;
-        }
-      }
-
-      if (encontrado) break;
-    }
-
-    if (!encontrado) {
-      setProgress(null);
-      setStatus('error', `No se encontró ninguna boleta con CI: ${ci}. Verifica el número ingresado.`);
-    }
+    resultCard.style.display = 'block';
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   } catch (err) {
     setProgress(null);
     console.error(err);
-    setStatus('error', 'Ocurrió un error al procesar. Intenta nuevamente.');
+    setStatus('error', 'Error al cargar el PDF. Intenta nuevamente en unos segundos.');
   }
 
   btn.disabled = false;
