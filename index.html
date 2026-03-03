@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boletas de Pago — Promed S.R.L.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--azul:#1a3a6b;--azul-dark:#0f2347;--azul-light:#e8eef7;--naranja:#e8500a;--gris:#f4f6fa;--borde:#dde3ef;--texto:#1a2340;--muted:#6b7a99;--blanco:#ffffff}
+    html{scroll-behavior:smooth}
+    body{font-family:'Open Sans',sans-serif;background:var(--gris);color:var(--texto);min-height:100vh}
+    .header{background:linear-gradient(135deg,var(--azul-dark) 0%,var(--azul) 100%);padding:0 24px;box-shadow:0 2px 16px rgba(0,0,0,.2);position:relative;overflow:hidden}
+    .header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:18px 0;position:relative;z-index:1}
+    .logo-wrap{display:flex;align-items:center;gap:14px}
+    .logo-cruz{width:52px;height:52px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+    .logo-promed{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;letter-spacing:.02em}
+    .logo-promed span:first-child{color:#fff}
+    .logo-promed span:last-child{color:var(--naranja)}
+    .logo-slogan{font-size:10px;font-weight:500;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase}
+    .header-badge{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:30px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+    .dot-live{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:blink 2s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .hero-strip{background:var(--naranja);padding:10px 24px;text-align:center}
+    .hero-strip p{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#fff;letter-spacing:.08em;text-transform:uppercase}
+    .page{max-width:780px;margin:0 auto;padding:40px 20px 80px}
+    .card{background:var(--blanco);border-radius:20px;box-shadow:0 4px 24px rgba(26,58,107,.10);border:1px solid var(--borde);overflow:hidden;margin-bottom:28px}
+    .card-header{background:var(--azul-light);border-bottom:2px solid var(--borde);padding:18px 28px;display:flex;align-items:center;gap:10px}
+    .card-header-icon{width:36px;height:36px;background:var(--azul);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .card-header-icon svg{width:18px;height:18px;color:#fff}
+    .card-header-text h2{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:700;color:var(--azul)}
+    .card-header-text p{font-size:12px;color:var(--muted);margin-top:2px}
+    .card-body{padding:28px}
+    .field-label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--azul);margin-bottom:8px}
+    .mes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:24px}
+    .mes-btn{padding:10px 8px;border:2px solid var(--borde);border-radius:10px;background:var(--gris);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center}
+    .mes-btn:hover{border-color:var(--azul);color:var(--azul);background:var(--azul-light)}
+    .mes-btn.activo{border-color:var(--azul);background:var(--azul);color:#fff}
+    .mes-btn .anio-tag{display:block;font-size:9px;font-weight:500;opacity:.7;margin-top:2px}
+    .divider{height:1px;background:var(--borde);margin:20px 0}
+    .ci-row{display:flex;gap:12px;align-items:stretch}
+    .ci-input{flex:1;padding:16px 20px;font-family:'Montserrat',monospace;font-size:22px;font-weight:700;letter-spacing:.06em;border:2px solid var(--borde);border-radius:12px;background:var(--gris);color:var(--texto);outline:none;transition:border-color .2s,box-shadow .2s;-moz-appearance:textfield}
+    .ci-input::-webkit-outer-spin-button,.ci-input::-webkit-inner-spin-button{-webkit-appearance:none}
+    .ci-input:focus{border-color:var(--azul);background:#fff;box-shadow:0 0 0 4px var(--azul-light)}
+    .ci-input::placeholder{color:#c5cdd8;font-weight:500;font-size:18px}
+    .btn-buscar{padding:16px 28px;background:var(--naranja);color:#fff;border:none;border-radius:12px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .2s,transform .1s,box-shadow .2s;white-space:nowrap}
+    .btn-buscar:hover{background:#c94008;box-shadow:0 4px 20px rgba(232,80,10,.35)}
+    .btn-buscar:active{transform:scale(.97)}
+    .btn-buscar:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-buscar svg{width:17px;height:17px}
+    .progress-bar{height:3px;background:var(--borde);border-radius:3px;margin-top:18px;overflow:hidden;display:none}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--azul),var(--naranja));border-radius:3px;width:0%;transition:width .4s ease}
+    .status-row{display:none;align-items:center;gap:10px;padding:14px 18px;border-radius:10px;font-size:13px;margin-top:16px;font-weight:500}
+    .status-row.loading{display:flex;background:var(--azul-light);border:1px solid #b8cae8;color:var(--azul)}
+    .status-row.error{display:flex;background:#fff0ea;border:1px solid #f5c4aa;color:#b83c00}
+    .status-row.ok{display:flex;background:#edfaf2;border:1px solid #b0e4c4;color:#1a6632}
+    .spin{width:16px;height:16px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .result-section{display:none;animation:riseUp .4s cubic-bezier(.16,1,.3,1)}
+    @keyframes riseUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .result-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .result-info h3{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--azul)}
+    .result-info p{font-size:12px;color:var(--muted);margin-top:3px}
+    .btn-dl{display:flex;align-items:center;gap:8px;padding:11px 20px;background:var(--azul);color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .2s,box-shadow .2s}
+    .btn-dl:hover{background:var(--azul-dark);box-shadow:0 4px 16px rgba(26,58,107,.3)}
+    .btn-dl svg{width:15px;height:15px}
+    .boleta-frame{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(26,58,107,.15);border:1px solid var(--borde);margin-top:20px}
+    .boleta-frame img{width:100%;height:auto;display:block}
+    canvas#render-canvas{display:none}
+    .footer{background:var(--azul-dark);padding:24px;text-align:center;margin-top:60px}
+    .footer p{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
+    .footer strong{color:rgba(255,255,255,.7)}
+    @media(max-width:500px){.ci-row{flex-direction:column}.btn-buscar{justify-content:center}.header-badge{display:none}.mes-grid{grid-template-columns:repeat(3,1fr)}}
+  </style>
+</head>
+<body>
+<canvas id="render-canvas"></canvas>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-cruz" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f0d060"/>
+            <stop offset="50%" style="stop-color:#c9a227"/>
+            <stop offset="100%" style="stop-color:#a07810"/>
+          </linearGradient>
+        </defs>
+        <rect x="35" y="5" width="30" height="90" rx="6" fill="url(#g1)"/>
+        <rect x="5" y="35" width="90" height="30" rx="6" fill="url(#g1)"/>
+        <ellipse cx="50" cy="50" rx="14" ry="14" fill="rgba(255,255,255,.2)"/>
+        <path d="M43 52 Q50 44 57 52 Q50 60 43 52Z" fill="rgba(255,255,255,.45)"/>
+      </svg>
+      <div class="logo-texto">
+        <div class="logo-promed"><span>Pro</span><span>Med</span></div>
+        <div class="logo-slogan">Su Salud en las Mejores Manos</div>
+      </div>
+    </div>
+    <div class="header-badge"><div class="dot-live"></div>Portal de Personal</div>
+  </div>
+</header>
+
+<div class="hero-strip">
+  <p>🔒 Sistema de consulta de boletas de pago — Uso exclusivo personal Promed</p>
+</div>
+
+<div class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+      </div>
+      <div class="card-header-text">
+        <h2>Consultar Boleta de Pago</h2>
+        <p>Selecciona el mes y luego ingresa tu número de CI</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <label class="field-label">📅 Paso 1 — Selecciona el mes</label>
+      <div class="mes-grid" id="mes-grid"></div>
+      <div class="divider"></div>
+      <label class="field-label" for="ci">🪪 Paso 2 — Ingresa tu número de CI</label>
+      <div class="ci-row">
+        <input type="number" id="ci" class="ci-input" placeholder="Ej: 4770143" autocomplete="off" inputmode="numeric"/>
+        <button class="btn-buscar" id="btn-buscar" onclick="buscar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Buscar
+        </button>
+      </div>
+      <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="status-row" id="status"><div class="spin" id="spin-icon"></div><span id="status-msg"></span></div>
+    </div>
+  </div>
+
+  <div class="result-section" id="result">
+    <div class="card">
+      <div class="card-body">
+        <div class="result-toolbar">
+          <div class="result-info">
+            <h3 id="res-name">Boleta encontrada</h3>
+            <p id="res-meta"></p>
+          </div>
+          <a class="btn-dl" id="btn-dl" href="#" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Descargar
+          </a>
+        </div>
+        <div class="boleta-frame"><img id="boleta-img" src="" alt="Boleta de pago"/></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p><strong>Profesionales en Medicina — Promed S.R.L.</strong></p>
+  <p>Santa Cruz de la Sierra, Bolivia · NIT 1014647025</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+// ================================================================
+//  MAPA CI -> PÁGINA  (edita solo si cambia el personal)
+//  El número de página corresponde a la posición en el PDF.
+//  Cada página tiene 2 copias idénticas de la boleta.
+// ================================================================
+const MAPA_BASE = {
+  "4770143":1,"8144443":2,"12759823":3,"5849173":4,"4014683":5,
+  "6561155":6,"8936758":7,"7293692":8,"5417743":9,"12667418":10,
+  "5772356":11,"3114027":12,"7091177":13,"8377994":14,"9125077":15,
+  "8327619":16,"9866860":17,"10679399":18,"7189426":19,"8505659":20,
+  "7918753":21,"13000333":22,"6507483":23,"8673764":24,"7920488":25
+};
+
+const MESES = [
+  { mes:"Junio",      anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_JUNIO_2025.pdf",      mapa:MAPA_BASE },
+  { mes:"Julio",      anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_JULIO_2025.pdf",      mapa:MAPA_BASE },
+  { mes:"Agosto",     anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_AGOSTO_2025.pdf",     mapa:MAPA_BASE },
+  { mes:"Septiembre", anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_SEPTIEMBRE_2025.pdf", mapa:MAPA_BASE },
+  { mes:"Octubre",    anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_OCTUBRE_2025.pdf",    mapa:MAPA_BASE },
+  { mes:"Noviembre",  anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_NOVIEMBRE_2025.pdf",  mapa:MAPA_BASE },
+  { mes:"Diciembre",  anio:2025, archivo:"pdfs/BOLETAS_DE_PAGO_DICIEMBRE_2025.pdf",  mapa:MAPA_BASE },
+  { mes:"Enero",      anio:2026, archivo:"pdfs/BOLETAS_DE_PAGO_ENERO_2026.pdf",      mapa:MAPA_BASE },
+];
+// ================================================================
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let mesSeleccionado = 6; // Diciembre 2025 por defecto
+
+const grid = document.getElementById('mes-grid');
+MESES.forEach((m, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'mes-btn' + (i === mesSeleccionado ? ' activo' : '');
+  btn.innerHTML = `${m.mes}<span class="anio-tag">${m.anio}</span>`;
+  btn.onclick = () => {
+    document.querySelectorAll('.mes-btn').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    mesSeleccionado = i;
+    document.getElementById('result').style.display = 'none';
+    hideStatus();
+  };
+  grid.appendChild(btn);
+});
+
+document.getElementById('ci').addEventListener('keydown', e => {
+  if (e.key === 'Enter') buscar();
+});
+
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status-row ' + type;
+  el.style.display = 'flex';
+  document.getElementById('status-msg').textContent = msg;
+  document.getElementById('spin-icon').style.display = type === 'loading' ? 'block' : 'none';
+}
+function hideStatus() { document.getElementById('status').style.display = 'none'; }
+function setProgress(pct) {
+  const bar = document.getElementById('progress-bar');
+  if (pct === null) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+async function buscar() {
+  const ci = document.getElementById('ci').value.trim();
+  const btn = document.getElementById('btn-buscar');
+  const result = document.getElementById('result');
+
+  if (!ci) { setStatus('error', 'Por favor ingresa tu número de CI.'); return; }
+
+  const config = MESES[mesSeleccionado];
+  const pagina = config.mapa[ci];
+
+  if (!pagina) {
+    setStatus('error', `No se encontró boleta con CI: ${ci} en ${config.mes} ${config.anio}. Verifica tu número.`);
+    return;
+  }
+
+  result.style.display = 'none';
+  btn.disabled = true;
+  setProgress(20);
+  setStatus('loading', `Cargando boleta de ${config.mes} ${config.anio}...`);
+
+  try {
+    let pdfDoc;
+    try {
+      pdfDoc = await pdfjsLib.getDocument(config.archivo).promise;
+    } catch(e) {
+      setProgress(null);
+      setStatus('error', `No se pudo cargar el PDF de ${config.mes} ${config.anio}.`);
+      btn.disabled = false;
+      return;
+    }
+
+    setProgress(60);
+    setStatus('loading', 'Generando tu boleta...');
+
+    const page = await pdfDoc.getPage(pagina);
+    const viewport = page.getViewport({ scale: 2.2 });
+    const canvas = document.getElementById('render-canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+    setProgress(90);
+
+    // Recortar mitad superior (cada página tiene 2 copias de la boleta)
+    const half = document.createElement('canvas');
+    half.width = canvas.width;
+    half.height = Math.floor(canvas.height / 2);
+    half.getContext('2d').drawImage(
+      canvas, 0, 0, canvas.width, canvas.height / 2,
+               0, 0, canvas.width, canvas.height / 2
+    );
+
+    const imgData = half.toDataURL('image/png');
+    document.getElementById('boleta-img').src = imgData;
+    document.getElementById('res-name').textContent = `Boleta de ${config.mes} ${config.anio}`;
+    document.getElementById('res-meta').textContent = `CI: ${ci}`;
+
+    const dlBtn = document.getElementById('btn-dl');
+    dlBtn.href = imgData;
+    dlBtn.download = `Boleta_Promed_CI${ci}_${config.mes}${config.anio}.png`;
+
+    setProgress(100);
+    setTimeout(() => setProgress(null), 600);
+    hideStatus();
+    result.style.display = 'block';
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  } catch(err) {
+    setProgress(null);
+    console.error(err);
+    setStatus('error', 'Error al generar la boleta. Intenta nuevamente.');
+  }
+
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
